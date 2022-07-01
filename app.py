@@ -8,7 +8,7 @@ cors = CORS(app, resources={r"/": {"origins": "*.*"}})
 
 # ROTAS
 
-@app.route("/",  methods=['POST', 'GET']) 
+@app.route("/",  methods=['POST']) 
 @cross_origin()
 def home():
     return jsonify({
@@ -16,7 +16,7 @@ def home():
         "version": "1.0.0"
     })
 
-@app.route("/upload", methods=['POST', 'GET']) 
+@app.route("/upload", methods=['POST']) 
 @cross_origin()
 def upload(): 
     req = request.get_json()
