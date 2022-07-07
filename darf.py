@@ -148,7 +148,7 @@ class darf():
                     cnv.drawString(498,764,emissao)
                     cnv.drawString(455,740,cnpjt)
                     if imp == 'IRRF':
-                        cnv.drawString(530,715, '1706')
+                        cnv.drawString(530,715, '1708')
                     if imp == 'CSRF':
                         cnv.drawString(530,715,'5952')
                     cnv.drawString(500,668,vencimento)
