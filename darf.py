@@ -49,7 +49,7 @@ class darf():
         impostos = ['CSRF','IRRF']
         for imp in impostos:
             for darf in df:
-                if int(darf[imp]) == 0:
+                if int(float(darf[imp])) == 0:
                     pass
                 else:
                     #arrumando dados
@@ -152,10 +152,11 @@ class darf():
                     if imp == 'CSRF':
                         cnv.drawString(530,715,'5952')
                     cnv.drawString(500,668,vencimento)
-                    cnv.drawString(adpt,642,str('{:.2f}'.format(darf[imp])).replace('.',','))
+                    
+                    cnv.drawString(adpt,642,str(float(darf[imp])).replace('.',','))
                     cnv.drawString(532,620,'0,00')
                     cnv.drawString(532,595,'0,00')
-                    cnv.drawString(adpt,570,str('{:.2f}'.format(darf[imp])).replace('.',','))
+                    cnv.drawString(adpt,570,str(float(darf[imp])).replace('.',','))
 
                     cnv.setFont('Helvetica-Bold',8)
                     cnv.drawString(391,765,'➜')
@@ -254,10 +255,10 @@ class darf():
                     if imp == 'CSRF':
                         cnv.drawString(530,311,'5952')
                     cnv.drawString(500,264,vencimento)
-                    cnv.drawString(adpt,238,str('{:.2f}'.format(darf[imp])).replace('.',','))
+                    cnv.drawString(adpt,238,str(float(darf[imp])).replace('.',','))
                     cnv.drawString(532,216,'0,00')
                     cnv.drawString(532,191,'0,00')
-                    cnv.drawString(adpt,166,str('{:.2f}'.format(darf[imp])).replace('.',','))
+                    cnv.drawString(adpt,166,str(float(darf[imp])).replace('.',','))
                     cnv.setFont('Helvetica-Bold',8)
                     cnv.drawString(391,361,'➜')
                     cnv.drawString(391,337,'➜')
