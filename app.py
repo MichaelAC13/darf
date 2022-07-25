@@ -1,5 +1,5 @@
 
-from flask import Flask,request,jsonify, send_file, render_template
+from flask import Flask,request,jsonify, send_file
 from flask_cors import CORS, cross_origin
 from darf import darf
 
@@ -22,7 +22,6 @@ def darfs():
     req = request.get_json()
     isert = darf.insertdata(req)
     print(isert)
-
     return send_file(isert, mimetype='application/zip')
     
 if __name__ == '__main__':
