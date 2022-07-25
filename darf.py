@@ -154,6 +154,7 @@ class darf():
                     value = float(darf[imp])
                     locale.setlocale(locale.LC_ALL, 'en_AG.utf8')
                     value = locale.currency(value, grouping=True, symbol=None)
+                    value = str(value).replace('.','-').replace(',','.').replace('-',',')
                     cnv.drawString(adpt,642,value)
                     cnv.drawString(532,620,'0,00')
                     cnv.drawString(532,595,'0,00')
