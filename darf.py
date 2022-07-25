@@ -152,7 +152,7 @@ class darf():
                         cnv.drawString(530,715,'5952')
                     cnv.drawString(500,668,vencimento)
                     value = float(darf[imp])
-                    locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
+                    locale.setlocale(locale.LC_ALL, 'en_AG.utf8')
                     value = locale.currency(value, grouping=True, symbol=None)
                     cnv.drawString(adpt,642,value)
                     cnv.drawString(532,620,'0,00')
