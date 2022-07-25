@@ -16,9 +16,9 @@ def home():
         "version": "1.0.0"
     })
 
-@app.route("/upload", methods=['POST']) 
+@app.route("/darfs", methods=['POST']) 
 @cross_origin()
-def upload(): 
+def darfs(): 
     req = request.get_json()
     isert = darf.insertdata(req)
     print(isert)

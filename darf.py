@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 from calendar import monthrange
 import shutil
+import locale
 import json
 import os
 
@@ -14,21 +15,20 @@ class darf():
         second = datetime.today().strftime('%Y%m%d%H%M%S')
         df = pd.DataFrame(a1).to_json(orient = 'records')
         df = json.loads(df)
-        # df = a1
         for i in df:
             try:
-                data_atual = datetime.strptime(str(i['Entrada']), '%Y-%m-%d').date()
+                data_atual = datetime.strptime(str(i['dtentrada']), '%Y-%m-%d').date()
             except:
-                data_atual = datetime.strptime('20'+str(i['Entrada']), '%Y-%m-%d').date()
+                data_atual = datetime.strptime('20'+str(i['dtentrada']), '%Y-%m-%d').date()
             data_final = data_atual.replace(day=monthrange(data_atual.year, data_atual.month)[1])
-            i['EmissaoDarf']=str(data_final)
-            i['CNPJ Tomador'] = str(i['CNPJ Tomador'])
+            i['emissaodarf']=str(data_final)
+            i['cnpjempresa'] = str(i['cnpjempresa'])
         df = pd.DataFrame(df)
-        df = df.groupby(['CNPJ Tomador','Tomador','CNPJ Prestador','EmissaoDarf']).sum()
+        df = df.groupby(['cnpjempresa','empresa','cnpjfornecedor','emissaodarf']).sum()
         df = df.reset_index()
         df = df.to_json(orient = 'records', force_ascii=False)
         df = json.loads(df)
-        # print(df)
+        print(df)
         try:
             shutil.rmtree('darfs')
         except:
@@ -46,7 +46,7 @@ class darf():
         except:
             pass
         
-        impostos = ['CSRF','IRRF']
+        impostos = ['csrf','irrf']
         for imp in impostos:
             for darf in df:
                 if int(float(darf[imp])) == 0:
@@ -54,30 +54,29 @@ class darf():
                 else:
                     #arrumando dados
                     try:
-                        
                         os.mkdir('darfs'+'//'+second)
                     except:
                         pass
-                    arquivo = 'darfs'+'//'+second+'//'+darf['Tomador']+' '+imp+'-'+str(darf['CNPJ Prestador'])+' '+darf['EmissaoDarf']+'.pdf'
+                    arquivo = 'darfs'+'//'+second+'//'+darf['empresa']+' '+imp+'-'+str(darf['cnpjfornecedor'])+' '+darf['emissaodarf']+'.pdf'
                     init = []
-                    cnpjp =str(darf['CNPJ Prestador'])
+                    cnpjp =str(darf['cnpjfornecedor'])
                     for i in range(len(cnpjp),14):
                         init.append('0')
                     cnpjp =''.join(init)+cnpjp
                     cnpjp = cnpjp[:2]+'.'+cnpjp[2:5]+'.'+cnpjp[5:8]+'/'+cnpjp[8:12]+'-'+cnpjp[12:15]
-                    emissao =str(darf['EmissaoDarf']).split('-')
+                    emissao =str(darf['emissaodarf']).split('-')
                     mes= int(emissao[1])+1
                     if mes < 10:
                         mes = '0'+str(mes)
                     vencimento = '20/'+str(mes)+'/'+emissao[0]
                     emissao = emissao[-1]+'/'+emissao[1]+'/'+emissao[0]
-                    
+
                     init = []
-                    cnpjt =str(darf['CNPJ Tomador'])
-                    for i in range(len(cnpjt),14):
+                    cnpj =str(darf['cnpjempresa'])
+                    for i in range(len(cnpj),14):
                         init.append('0')
-                    cnpjt =''.join(init)+cnpjt
-                    cnpjt = cnpjt[:2]+'.'+cnpjt[2:5]+'.'+cnpjt[5:8]+'/'+cnpjt[8:12]+'-'+cnpjt[12:15]
+                    cnpj =''.join(init)+cnpj
+                    cnpj = cnpj[:2]+'.'+cnpj[2:5]+'.'+cnpj[5:8]+'/'+cnpj[8:12]+'-'+cnpj[12:15]
 
                     adpt=float(round(532-(len(str(darf[imp]))-3)*5,0))
 
@@ -93,13 +92,13 @@ class darf():
                     cnv.setFont('Helvetica-Bold',9.9)
                     cnv.drawString(105,710,'DARF')
                     cnv.setFont('Helvetica',9.9)
-                    cnv.drawString(150,710,imp)
+                    cnv.drawString(150,710,imp.upper())
                     cnv.setFont('Helvetica-Bold',9.9)
                     cnv.drawString(13,687,'01')
                     cnv.setFont('Helvetica',6)
                     cnv.drawString(30,690,'NOME / TELEFONE')
                     cnv.setFont('Helvetica',10)
-                    cnv.drawString(30,680,darf['Tomador'][:42])
+                    cnv.drawString(30,680,darf['empresa'][:42])
                     cnv.setFont('Helvetica',8)
                     cnv.drawString(30,670,'Prestador: '+cnpjp)
                     cnv.setFont('Helvetica',10)
@@ -146,18 +145,19 @@ class darf():
                     cnv.drawString(315,560,'AUTENTICAÇÃO BANCÁRIA (Somente nas 1ª e 2ª vias)')
                     cnv.setFont('Helvetica',11)
                     cnv.drawString(498,764,emissao)
-                    cnv.drawString(455,740,cnpjt)
-                    if imp == 'IRRF':
+                    cnv.drawString(455,740,cnpj)
+                    if imp == 'irrf':
                         cnv.drawString(530,715, '1708')
-                    if imp == 'CSRF':
+                    if imp == 'csrf':
                         cnv.drawString(530,715,'5952')
                     cnv.drawString(500,668,vencimento)
-                    
-                    cnv.drawString(adpt,642,str(float(darf[imp])).replace('.',','))
+                    value = float(darf[imp])
+                    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+                    value = locale.currency(value, grouping=True, symbol=None)
+                    cnv.drawString(adpt,642,value)
                     cnv.drawString(532,620,'0,00')
                     cnv.drawString(532,595,'0,00')
-                    cnv.drawString(adpt,570,str(float(darf[imp])).replace('.',','))
-
+                    cnv.drawString(adpt,570,value)
                     cnv.setFont('Helvetica-Bold',8)
                     cnv.drawString(391,765,'➜')
                     cnv.drawString(391,741,'➜')
@@ -195,13 +195,13 @@ class darf():
                     cnv.setFont('Helvetica-Bold',9.9)
                     cnv.drawString(105,306,'DARF')
                     cnv.setFont('Helvetica',9.9)
-                    cnv.drawString(150,306,imp)
+                    cnv.drawString(150,306,imp.upper())
                     cnv.setFont('Helvetica-Bold',9.9)
                     cnv.drawString(13,283,'01')
                     cnv.setFont('Helvetica',6)
                     cnv.drawString(30,286,'NOME / TELEFONE')
                     cnv.setFont('Helvetica',10)
-                    cnv.drawString(30,276,darf['Tomador'][:42])
+                    cnv.drawString(30,276,darf['empresa'][:42])
                     cnv.setFont('Helvetica',8)
                     cnv.drawString(30,266,'Prestador: '+cnpjp)
                     cnv.setFont('Helvetica',10)
@@ -249,16 +249,16 @@ class darf():
                     cnv.setFont('Helvetica',11)
                     # cnv.setFontSize(12)
                     cnv.drawString(498,360,emissao)
-                    cnv.drawString(455,336,cnpjt)
-                    if imp == 'IRRF':
+                    cnv.drawString(455,336,cnpj)
+                    if imp == 'irrf':
                         cnv.drawString(530,311,'1708')
-                    if imp == 'CSRF':
+                    if imp == 'csrf':
                         cnv.drawString(530,311,'5952')
                     cnv.drawString(500,264,vencimento)
-                    cnv.drawString(adpt,238,str(float(darf[imp])).replace('.',','))
+                    cnv.drawString(adpt,238,value)
                     cnv.drawString(532,216,'0,00')
                     cnv.drawString(532,191,'0,00')
-                    cnv.drawString(adpt,166,str(float(darf[imp])).replace('.',','))
+                    cnv.drawString(adpt,166,value)
                     cnv.setFont('Helvetica-Bold',8)
                     cnv.drawString(391,361,'➜')
                     cnv.drawString(391,337,'➜')
